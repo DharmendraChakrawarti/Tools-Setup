@@ -225,7 +225,7 @@ You need `kubectl` and `AWS CLI` installed locally to connect. (See [simple-setu
 # Configure kubeconfig
 aws eks update-kubeconfig \
   --name my-cluster \
-  --region us-east-1
+  --region ap-south-1
 
 # Verify connection
 kubectl get nodes
@@ -300,7 +300,7 @@ This step must be done via CLI:
 ```bash
 eksctl utils associate-iam-oidc-provider \
   --cluster my-cluster \
-  --region us-east-1 \
+  --region ap-south-1 \
   --approve
 ```
 

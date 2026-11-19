@@ -71,7 +71,7 @@ sudo apt update && sudo apt install terraform
 aws configure
 # AWS Access Key ID:     <YOUR_ACCESS_KEY>
 # AWS Secret Access Key: <YOUR_SECRET_KEY>
-# Default region name:   us-east-1
+# Default region name:   ap-south-1
 # Default output format: json
 
 # Verify identity
@@ -210,7 +210,7 @@ done
 ```bash
 eksctl create cluster \
   --name production-cluster \
-  --region us-east-1 \
+  --region ap-south-1 \
   --version 1.30 \
   --without-nodegroup \
   --vpc-cidr 10.0.0.0/16 \
@@ -237,17 +237,17 @@ aws ec2 attach-internet-gateway --internet-gateway-id $IGW_ID --vpc-id $VPC_ID
 
 # --- Public Subnets (3 AZs) ---
 PUB_SUB_A=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.1.0/24 \
-  --availability-zone us-east-1a \
+  --availability-zone ap-south-1a \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=eks-pub-a},{Key=kubernetes.io/role/elb,Value=1}]' \
   --query 'Subnet.SubnetId' --output text)
 
 PUB_SUB_B=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.2.0/24 \
-  --availability-zone us-east-1b \
+  --availability-zone ap-south-1b \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=eks-pub-b},{Key=kubernetes.io/role/elb,Value=1}]' \
   --query 'Subnet.SubnetId' --output text)
 
 PUB_SUB_C=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.3.0/24 \
-  --availability-zone us-east-1c \
+  --availability-zone ap-south-1c \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=eks-pub-c},{Key=kubernetes.io/role/elb,Value=1}]' \
   --query 'Subnet.SubnetId' --output text)
 
@@ -258,17 +258,17 @@ done
 
 # --- Private Subnets (3 AZs) ---
 PRIV_SUB_A=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.10.0/24 \
-  --availability-zone us-east-1a \
+  --availability-zone ap-south-1a \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=eks-priv-a},{Key=kubernetes.io/role/internal-elb,Value=1}]' \
   --query 'Subnet.SubnetId' --output text)
 
 PRIV_SUB_B=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.20.0/24 \
-  --availability-zone us-east-1b \
+  --availability-zone ap-south-1b \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=eks-priv-b},{Key=kubernetes.io/role/internal-elb,Value=1}]' \
   --query 'Subnet.SubnetId' --output text)
 
 PRIV_SUB_C=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.30.0/24 \
-  --availability-zone us-east-1c \
+  --availability-zone ap-south-1c \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=eks-priv-c},{Key=kubernetes.io/role/internal-elb,Value=1}]' \
   --query 'Subnet.SubnetId' --output text)
 
@@ -312,7 +312,7 @@ kind: ClusterConfig
 
 metadata:
   name: production-cluster
-  region: us-east-1
+  region: ap-south-1
   version: "1.30"
   tags:
     Environment: production
@@ -414,7 +414,7 @@ eksctl create cluster -f cluster-config.yaml
 # Create the cluster
 aws eks create-cluster \
   --name production-cluster \
-  --region us-east-1 \
+  --region ap-south-1 \
   --kubernetes-version 1.30 \
   --role-arn arn:aws:iam::<ACCOUNT_ID>:role/EKSClusterRole \
   --resources-vpc-config \
@@ -487,7 +487,7 @@ aws eks create-fargate-profile \
 # Update kubeconfig
 aws eks update-kubeconfig \
   --name production-cluster \
-  --region us-east-1 \
+  --region ap-south-1 \
   --alias production
 
 # Verify
@@ -598,7 +598,7 @@ spec:
       serviceAccountName: my-app-sa   # <-- Uses IRSA
       containers:
         - name: app
-          image: <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
+          image: <ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/my-app:latest
           resources:
             requests:
               cpu: 500m
@@ -710,7 +710,7 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
   --set clusterName=production-cluster \
   --set serviceAccount.create=false \
   --set serviceAccount.name=aws-load-balancer-controller \
-  --set region=us-east-1 \
+  --set region=ap-south-1 \
   --set vpcId=$VPC_ID
 ```
 
@@ -726,7 +726,7 @@ metadata:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:<ACCOUNT_ID>:certificate/<CERT_ID>
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:<ACCOUNT_ID>:certificate/<CERT_ID>
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/healthcheck-path: /health
@@ -812,7 +812,7 @@ spec:
     solvers:
       - dns01:
           route53:
-            region: us-east-1
+            region: ap-south-1
 ```
 
 ---
@@ -826,7 +826,7 @@ helm repo add autoscaler https://kubernetes.github.io/autoscaler
 helm install cluster-autoscaler autoscaler/cluster-autoscaler \
   -n kube-system \
   --set autoDiscovery.clusterName=production-cluster \
-  --set awsRegion=us-east-1 \
+  --set awsRegion=ap-south-1 \
   --set extraArgs.balance-similar-node-groups=true \
   --set extraArgs.skip-nodes-with-system-pods=false \
   --set extraArgs.expander=least-waste \
@@ -987,8 +987,8 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 
 helm install kube-prometheus prometheus-community/kube-prometheus-stack \
   -n monitoring --create-namespace \
-  --set prometheus.prometheusSpec.remoteWrite[0].url="https://aps-workspaces.us-east-1.amazonaws.com/workspaces/<WORKSPACE_ID>/api/v1/remote_write" \
-  --set prometheus.prometheusSpec.remoteWrite[0].sigv4.region=us-east-1 \
+  --set prometheus.prometheusSpec.remoteWrite[0].url="https://aps-workspaces.ap-south-1.amazonaws.com/workspaces/<WORKSPACE_ID>/api/v1/remote_write" \
+  --set prometheus.prometheusSpec.remoteWrite[0].sigv4.region=ap-south-1 \
   --set prometheus.prometheusSpec.retention=2d \
   --set prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName=gp3 \
   --set prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage=50Gi \
@@ -1007,7 +1007,7 @@ helm install fluent-bit fluent/fluent-bit \
     [OUTPUT]
         Name              cloudwatch_logs
         Match             *
-        region            us-east-1
+        region            ap-south-1
         log_group_name    /eks/production-cluster/application
         log_stream_prefix fluentbit-
         auto_create_group true
@@ -1220,8 +1220,8 @@ velero install \
   --provider aws \
   --plugins velero/velero-plugin-for-aws:v1.9.0 \
   --bucket eks-backup-bucket \
-  --backup-location-config region=us-east-1 \
-  --snapshot-location-config region=us-east-1 \
+  --backup-location-config region=ap-south-1 \
+  --snapshot-location-config region=ap-south-1 \
   --secret-file ./credentials-velero
 
 # Schedule daily backups
@@ -1241,7 +1241,7 @@ velero restore create --from-backup daily-backup-20261119020000
 ### 16.2 Multi-Region DR Strategy
 
 ```
-  Primary Region (us-east-1)              DR Region (us-west-2)
+  Primary Region (ap-south-1)              DR Region (us-west-2)
   ┌────────────────────────┐              ┌────────────────────────┐
   │  EKS Cluster           │              │  EKS Cluster (Standby) │
   │  RDS Primary           │──Async Rep──▶│  RDS Read Replica      │
@@ -1267,7 +1267,7 @@ on:
     branches: [main]
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ap-south-1
   ECR_REPOSITORY: my-app
   EKS_CLUSTER: production-cluster
 
@@ -1379,13 +1379,13 @@ spec:
 
 ```bash
 # Create essential VPC endpoints
-for svc in com.amazonaws.us-east-1.s3 \
-            com.amazonaws.us-east-1.ecr.api \
-            com.amazonaws.us-east-1.ecr.dkr \
-            com.amazonaws.us-east-1.ec2 \
-            com.amazonaws.us-east-1.sts \
-            com.amazonaws.us-east-1.logs \
-            com.amazonaws.us-east-1.elasticloadbalancing; do
+for svc in com.amazonaws.ap-south-1.s3 \
+            com.amazonaws.ap-south-1.ecr.api \
+            com.amazonaws.ap-south-1.ecr.dkr \
+            com.amazonaws.ap-south-1.ec2 \
+            com.amazonaws.ap-south-1.sts \
+            com.amazonaws.ap-south-1.logs \
+            com.amazonaws.ap-south-1.elasticloadbalancing; do
   aws ec2 create-vpc-endpoint \
     --vpc-id $VPC_ID \
     --service-name $svc \
@@ -1397,7 +1397,7 @@ done
 # S3 Gateway Endpoint (free!)
 aws ec2 create-vpc-endpoint \
   --vpc-id $VPC_ID \
-  --service-name com.amazonaws.us-east-1.s3 \
+  --service-name com.amazonaws.ap-south-1.s3 \
   --vpc-endpoint-type Gateway \
   --route-table-ids $PRIV_RT
 ```
@@ -1511,7 +1511,7 @@ terraform {
   backend "s3" {
     bucket         = "my-terraform-state-bucket"
     key            = "eks/production/terraform.tfstate"
-    region         = "us-east-1"
+    region         = "ap-south-1"
     dynamodb_table = "terraform-state-lock"
     encrypt        = true
   }
@@ -1554,7 +1554,7 @@ module "vpc" {
 
   name = "${var.cluster_name}-vpc"
   cidr = "10.0.0.0/16"
-  azs  = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  azs  = ["ap-south-1a", "ap-south-1b", "ap-south-1c"]
 
   private_subnets = ["10.0.10.0/24", "10.0.20.0/24", "10.0.30.0/24"]
   public_subnets  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]

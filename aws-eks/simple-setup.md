@@ -29,7 +29,7 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 ```bash
 aws configure
-# Enter: Access Key, Secret Key, Region (e.g. us-east-1), Output (json)
+# Enter: Access Key, Secret Key, Region (e.g. ap-south-1), Output (json)
 
 # Verify
 aws sts get-caller-identity
@@ -42,7 +42,7 @@ aws sts get-caller-identity
 ```bash
 eksctl create cluster \
   --name my-cluster \
-  --region us-east-1 \
+  --region ap-south-1 \
   --version 1.30 \
   --nodegroup-name workers \
   --node-type t3.medium \
@@ -60,7 +60,7 @@ eksctl create cluster \
 
 ```bash
 # kubeconfig is auto-updated by eksctl, but you can do it manually:
-aws eks update-kubeconfig --name my-cluster --region us-east-1
+aws eks update-kubeconfig --name my-cluster --region ap-south-1
 
 # Check cluster
 kubectl cluster-info
@@ -190,7 +190,7 @@ helm repo add autoscaler https://kubernetes.github.io/autoscaler
 helm install cluster-autoscaler autoscaler/cluster-autoscaler \
   -n kube-system \
   --set autoDiscovery.clusterName=my-cluster \
-  --set awsRegion=us-east-1
+  --set awsRegion=ap-south-1
 ```
 
 ---
@@ -235,7 +235,7 @@ kubectl get all -n my-app              # All resources in ns
 kubectl delete -f app.yaml
 
 # Delete the entire cluster (removes everything)
-eksctl delete cluster --name my-cluster --region us-east-1
+eksctl delete cluster --name my-cluster --region ap-south-1
 ```
 
 > ⚠️ This deletes all resources including the VPC, nodes, and load balancers. Make sure you want to do this.
